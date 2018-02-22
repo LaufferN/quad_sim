@@ -33,7 +33,7 @@ def main():
     file_name = "right_forward"
     file_append = 3
     with open("range_movement_data/" + file_name + "_" + str(file_append), "w") as f:
-        f.write("action, feature, offset, angle_offset, abs_x, abs_y, abs_angle, time")
+        # f.write("action, feature, offset, angle_offset, abs_x, abs_y, abs_angle, time")
         while not rospy.is_shutdown():
             abs_x = position.x
             abs_y = position.y

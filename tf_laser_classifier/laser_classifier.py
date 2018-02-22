@@ -3,8 +3,6 @@ from random import shuffle
 import tensorflow as tf
 import numpy as np
 
-from PIL import Image
-
 def pca(A, dim):
 
     M = (A-np.mean(A.T,axis=1)).T # subtract the mean (along columns)
@@ -27,86 +25,79 @@ def pca(A, dim):
     return coeff
 
 
-def normalize(arr):
-    """
-    Linear normalization
-    """
-    arr = arr.astype('float')
-    for i in range(3):
-        minval = arr[...,i].min()
-        maxval = arr[...,i].max()
-        if minval != maxval:
-            arr[...,i] -= minval
-            arr[...,i] *= (255.0/(maxval-minval))
-            return arr
-
 def main():
 
     # hyperparameters
-    learning_rate = 0.5
+    learning_rate = .5
     epochs = 10
     batch_size = 10
-    reduced_dim = 9*9
+    reduced_dim = 940
 
     # grab training data
-    folders = ["illum_from_left/middle_left/", "illum_from_left/middle_middle/", "illum_from_left/middle_right/", "illum_from_right/middle_left/", "illum_from_right/middle_middle/", "illum_from_right/middle_right/"]
-    label_tags = [np.array([1.,0.,0.]), np.array([0.,1.,0.]), np.array([0.,0.,1.]), np.array([1.,0.,0.]), np.array([0.,1.,0.]), np.array([0.,0.,1.])]
-    images = []
+    folders = [open("../recording/laser_scan_data/middle_left", 'r'), open("../recording/laser_scan_data/middle_middle", 'r'), open("../recording/laser_scan_data/middle_right", 'r')]
+    label_tags = [np.array([1.,0.,0.]), np.array([0.,1.,0.]), np.array([0.,0.,1.])]
+    data_points = []
     labels = [] 
     for folder, label_tag in zip(folders, label_tags):
-        for i in range(1, 1850):
-            img = Image.open("../recording/images/" + folder + str(i) + ".png")
-            img = img.resize((9,9)) #,Image.ANTIALIAS)
-            arr = np.array(img)
-            # norm_arr = normalize(arr)
+        for i, line in zip(range(1, 700), folder):
+            # line = map(float, line.split(', '))[450:-450]
+            line = map(float, line.split(', '))
+            arr = np.array(line)
+            # data = arr/25.0
+            # data = data - .75
             data = []
-            for pixel in arr.flatten():
-                data.append(float(pixel)/255.0)
-            images.append(np.asarray(data))
+            max_ = max(arr)
+            for value in arr:
+                data.append(float(value)/max_)
+            data = data - np.average(data)
+            data_points.append(np.asarray(data))
             labels.append(label_tag)
+
+    for f in folders:
+        f.close()
 
     # calculate PCA
     # print("starting PCA")
-    # rotation_reduced = pca(train_images, reduced_dim)
+    # rotation_reduced = pca(train_data, reduced_dim)
 
     # randomize order of data
-    mix = zip(images, labels)
+    mix = zip(data_points, labels)
     shuffle(mix)
-    images, labels = zip(*mix)
+    data_points, labels = zip(*mix)
 
     # assign test and train sets
-    train_images = images[:1750*6]
-    train_labels = labels[:1750*6]
-    test_images = images[1750*6:]
-    test_labels = labels[1750*6:]
-    # train_images = train_images[0:2] * 150
+    train_data = data_points[:650*3]
+    train_labels = labels[:650*3]
+    test_data = data_points[650*3:]
+    test_labels = labels[650*3:]
+    # train_data = train_data[0:2] * 150
     # train_labels = train_labels[0:2] * 150
 
     # convert to numpy arrays
-    # train_images = np.asarray(train_images)
+    # train_data = np.asarray(train_data)
     # train_labels = np.asarray(train_labels)
-    # test_images = np.asarray(test_images)
+    # test_data = np.asarray(test_data)
     # test_labels = np.asarray(test_labels)
 
     # img = Image.new('L', (28,24))
-    # img.putdata(np.asarray(test_images[20]))
+    # img.putdata(np.asarray(test_data[20]))
     # print(test_labels[20])
     # img.show()
 
     # convert training data to reduced dimension
-    # train_pca_images = []
-    # for image in train_images:
+    # train_pca_data = []
+    # for image in train_data
     #     small_transformed_image = np.dot(rotation_reduced.T, image)
-    #     train_pca_images.append(small_transformed_image)
+    #     train_pca_data.append(small_transformed_image)
 
     # # same for testing
-    # test_pca_images = []
-    # for image in test_images:
+    # test_pca_data = []
+    # for image in test_data
     #     small_transformed_image = np.dot(rotation_reduced.T, image)
-    #     test_pca_images.append(small_transformed_image)
+    #     test_pca_data.append(small_transformed_image)
 
-    train_pca_images = train_images
-    test_pca_images = test_images
+    train_pca_data = train_data
+    test_pca_data = test_data 
 
 
 
@@ -116,9 +107,9 @@ def main():
     y = tf.placeholder(tf.float32, [None, 3])
 
     # declare the weights connecting the input to the hidden layer
-    w1 = tf.Variable(tf.random_normal([reduced_dim, 10], stddev=0.03), name='w1')
-    b1 = tf.Variable(tf.random_normal([10]), name='b1')
-    w2 = tf.Variable(tf.random_normal([10, 3], stddev=0.03), name='w2')
+    w1 = tf.Variable(tf.random_normal([reduced_dim, 2], stddev=0.15), name='w1')
+    b1 = tf.Variable(tf.random_normal([2]), name='b1')
+    w2 = tf.Variable(tf.random_normal([2, 3], stddev=0.15), name='w2')
     b2 = tf.Variable(tf.random_normal([3]), name='b2')
     # and the weights connecting the hidden layer to the output layer
     # w3 = tf.Variable(tf.random_normal([10, 3], stddev=0.03), name='w3')
@@ -126,9 +117,14 @@ def main():
 
     # calculate the output of the hidden layer
     hidden_out_1 = tf.add(tf.matmul(x, w1), b1)
-    hidden_out_1 = tf.nn.sigmoid(hidden_out_1)
+    alpha = .01
+    hidden_out_1 = tf.maximum(hidden_out_1, alpha * hidden_out_1)
+    # hidden_out_1 = tf.nn.relu(hidden_out_1)
+    # hidden_out_1 = tf.maximum(hidden_out_1, 0)
+    # hidden_out_1 = tf.maximum(hidden_out_1, alpha * hidden_out_1)
+    # hidden_out_1 = tf.maximum(0.0, hidden_out_1)
     # hidden_out_2 = tf.add(tf.matmul(hidden_out_1, w2), b2)
-    # hidden_out_2 = tf.nn.relu(hidden_out_2)
+    # hidden_out_1 = tf.nn.sigmoid(hidden_out_1)
 
     # calculate the hidden layer output - in this case, let's use a softmax activated
     # output layer
@@ -157,12 +153,12 @@ def main():
         # initialize the variables
         sess.run(init_op)
         # grab a batch
-        total_batch = int(len(train_pca_images) / batch_size)
+        total_batch = int(len(train_pca_data) / batch_size)
         for epoch in range(epochs):
             avg_cost = 0
             flag = True
             for i in range(total_batch):
-                batch_x = train_pca_images[i*batch_size : (i+1)*batch_size]
+                batch_x = train_pca_data[i*batch_size : (i+1)*batch_size]
                 batch_y = train_labels[i*batch_size : (i+1)*batch_size]
 
                 if flag:
@@ -179,10 +175,10 @@ def main():
             print("Epoch:", (epoch + 1), "cost =", "{:.3f}".format(avg_cost))
 
         print("\nTraining complete!")
-        print("Accuracy", sess.run(accuracy, feed_dict={x: test_pca_images, y: test_labels}))
-        saver.save(sess, "model.ckpt")
+        print("Accuracy", sess.run(accuracy, feed_dict={x: test_pca_data, y: test_labels}))
+        saver.save(sess, "sigmoid_model/model.ckpt")
 
-        # guess = y_.eval(feed_dict={x: [test_pca_images[0]]}, session=sess)
+        # guess = y_.eval(feed_dict={x: [test_pca_data[0]]}, session=sess)
 
 
 if __name__ == '__main__':

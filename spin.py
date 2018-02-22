@@ -6,7 +6,7 @@ import sys
 
 
 def spin(speed):
-    pub = rospy.Publisher('cmd_vel', Twist, queue_size=10)
+    pub = rospy.Publisher('quad0/cmd_vel', Twist, queue_size=10)
     rospy.init_node('rise', anonymous=True)
 
     spin_vel = Twist()
