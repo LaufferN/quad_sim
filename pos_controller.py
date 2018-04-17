@@ -18,15 +18,30 @@ def main():
 
     rospy.sleep(.5)
 
-    xs = [-70, -30, -20, -10, 0, 10, 20, 30, 40]
-    # xs = [-40, -30, -20, -10, 0, 10, 20, 30, 40]
-    ys = [0, 1, -1, 2, -2, 3, -3, 4, -4]
-    for pub, x, y in zip(pubs, xs, ys):
+    # single frame
+    # xs = [-23, -20, -17, -13, -10, -7, -3, 0, 3]
+    # ys = [0, 3, -3, 0, 3, -3, 0, 3, -3]
+    # thetas = [-PI/4, -PI/4, -PI/4, 0, 0, 0, PI/4, PI/4, PI/4,]
+
+    # runs
+    # xs_init = [-60, -55, -50, -45, -40, -35, -30, -25, -20]
+    # xs_final = [44, 46, 48, 50, 52, 54, 56, 58, 60]
+    # xs = xs_init
+    # ys = [0, 4, -4, 0, 4, -4, 0, 4, -4]
+    # thetas = [-PI/4, -PI/4, -PI/4, 0, 0, 0, PI/4, PI/4, PI/4,]
+
+
+    # single quad
+    xs = [-80]
+    ys = [5]
+    thetas = [-PI/8]
+
+    for pub, x, y, theta in zip(pubs, xs, ys, thetas):
         pos = PoseStamped()
         pos.pose.position.x = x
         pos.pose.position.y = y
-        pos.pose.position.z = 0
-        quaternion = tf.transformations.quaternion_from_euler(0, 0, -PI/4)
+        pos.pose.position.z = 12
+        quaternion = tf.transformations.quaternion_from_euler(0, 0, theta)
         pos.pose.orientation.x = quaternion[0]
         pos.pose.orientation.y = quaternion[1]
         pos.pose.orientation.z = quaternion[2]

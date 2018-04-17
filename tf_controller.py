@@ -12,7 +12,6 @@ import tensorflow as tf
 # /cmd_vel geometry_msgs/Twist
 
 
-
 model_path = "tf_classifier/model.ckpt" 
 tf.reset_default_graph()
 
@@ -75,9 +74,9 @@ def camera_callback(data):
     camera_feature = np.asarray(img).flatten()
 
 def main():
-    pub = rospy.Publisher('cmd_vel', Twist, queue_size=10)
+    pub = rospy.Publisher('quad0/cmd_vel', Twist, queue_size=10)
     rospy.init_node('rise', anonymous=True)
-    rospy.Subscriber('/front_cam/camera/image', Image, camera_callback)
+    rospy.Subscriber('quad0/front_cam/camera/image', Image, camera_callback)
 
     rospy.sleep(.5) # let ros finish connecting
 
