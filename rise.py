@@ -20,7 +20,8 @@ def rise():
     still = Twist()
     [pub.publish(up_vel) for pub in pubs]
 
-    rospy.sleep(8.0)
+    # rospy.sleep(8.0) height for valley
+    rospy.sleep(6.0)
     [pub.publish(still) for pub in pubs]
 
 

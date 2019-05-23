@@ -24,23 +24,23 @@ def main():
     # thetas = [-PI/4, -PI/4, -PI/4, 0, 0, 0, PI/4, PI/4, PI/4,]
 
     # runs
-    # xs_init = [-60, -55, -50, -45, -40, -35, -30, -25, -20]
-    # xs_final = [44, 46, 48, 50, 52, 54, 56, 58, 60]
-    # xs = xs_init
-    # ys = [0, 4, -4, 0, 4, -4, 0, 4, -4]
-    # thetas = [-PI/4, -PI/4, -PI/4, 0, 0, 0, PI/4, PI/4, PI/4,]
+    xs_init = [-60, -55, -50, -45, -40, -35, -30, -25, -20]
+    xs_final = [44, 46, 48, 50, 52, 54, 56, 58, 60]
+    xs = xs_init
+    ys = [0, 4, -4, 0, 4, -4, 2, 4, 6]
+    thetas = [.2, -PI/4, -PI/4, 0, 0, 0, PI/3, PI/4, PI/5,]
 
 
     # single quad
-    xs = [-80]
-    ys = [5]
-    thetas = [-PI/8]
+    # xs = [-9]
+    # ys = [-70]
+    # thetas = [2*PI/3]
 
     for pub, x, y, theta in zip(pubs, xs, ys, thetas):
         pos = PoseStamped()
         pos.pose.position.x = x
         pos.pose.position.y = y
-        pos.pose.position.z = 12
+        pos.pose.position.z = 5
         quaternion = tf.transformations.quaternion_from_euler(0, 0, theta)
         pos.pose.orientation.x = quaternion[0]
         pos.pose.orientation.y = quaternion[1]

@@ -6,7 +6,7 @@ import sys
 
 
 def forward(speed):
-    pub = rospy.Publisher('cmd_vel', Twist, queue_size=10)
+    pub = rospy.Publisher('quad0/cmd_vel', Twist, queue_size=10)
     rospy.init_node('rise', anonymous=True)
 
     forward = Twist()
